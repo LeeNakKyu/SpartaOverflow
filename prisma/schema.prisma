@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+model users {
+  userId        Int           @id @default(autoincrement()) @map("userId")  
+  email         String        @unique
+  password      String        @map("password")
+  type          String        @map("type")
+  createdAt     DateTime      @default(now())               @map("createdAt")
+  updatedAt     DateTime      @updatedAt @default(now())    @map("updatedAt")
+
+  answers answers[] @relation("UserAnswers")
+  questions questions[] @relation("UserQuestions")
+
+  @@map("users")
+}
+
+model questions {
+  questionId     Int         @id @default(autoincrement()) @map("questionId")
+  userId         Int         @map("userId")
+  title          String      @map("title")
+  questionDetail String      @map("questionDetail")
+  createdAt      DateTime    @default(now())               @map("createdAt")
+  updatedAt      DateTime    @updatedAt @default(now())    @map("updatedAt")
+
+  Users  users @relation("UserQuestions", fields: [userId], references: [userId], onDelete:Cascade)
+  answers answers[] @relation("QuestionAnswers")
+
+  @@map("questions")
+}
+
+
+model answers {
+  answerId         Int            @id @default(autoincrement()) @map("answerId")
+  questionId       Int            @map("questionId")
+  userId           Int            @map("userId")
+  answerDetail     String         @map("answerDetail")
+  createdAt        DateTime       @default(now())               @map("createdAt")
+  updatedAt        DateTime       @updatedAt @default(now())    @map("updatedAt")    
+ 
+  Users  users @relation("UserAnswers", fields: [userId], references: [userId], onDelete:Cascade)
+  Questions  questions @relation("QuestionAnswers", fields: [questionId], references: [questionId])
+
+  @@map("answers")
+}
+
